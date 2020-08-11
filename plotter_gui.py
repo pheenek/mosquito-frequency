@@ -15,6 +15,7 @@ import serial.tools.list_ports as serial_tools
 import numpy as np
 import animate_plot
 import ntpath
+import tk_plot
 
 def confirm_quit():
     if messagebox.askokcancel("Quit?", "Are you sure you want to quit?"):
@@ -96,7 +97,7 @@ class Plotter_GUI:
         self.PortFrame.configure(relief="groove")
 
         self.PortLabel = ttk.Label(self.PortFrame)
-        self.PortLabel.place(relx=0.101, rely=0.212, height=23, width=65)
+        self.PortLabel.place(relx=0.101, rely=0.182, height=23, width=65)
         self.PortLabel.configure(background="#d9d9d9")
         self.PortLabel.configure(foreground="#000000")
         self.PortLabel.configure(font="TkDefaultFont")
@@ -105,11 +106,14 @@ class Plotter_GUI:
         self.PortLabel.configure(justify='left')
         self.PortLabel.configure(text='''Port''')
 
+        port_list = self.get_ports()
         self.PortComboBox = ttk.Combobox(
-            self.PortFrame, values=self.get_ports())
-        self.PortComboBox.current(0)
-        self.PortComboBox.place(relx=0.101, rely=0.316,
-                                relheight=0.073, relwidth=0.803)
+            self.PortFrame, values=port_list)
+        if (len(port_list) > 0):
+            ret = self.PortComboBox.current(0)
+            print("Port ret:", ret, "ports:", port_list)
+        self.PortComboBox.place(relx=0.101, rely=0.286,
+                                relheight=0.093, relwidth=0.803)
         self.PortComboBox.configure(
             textvariable=plotter_gui_support.port_combobox)
         self.PortComboBox.configure(takefocus="")
@@ -296,7 +300,7 @@ class Plotter_GUI:
         self.OpenFileButton.configure(takefocus="")
         self.OpenFileButton.configure(text='''Open''')
 
-        self.RecordDataButton = ttk.Button(top, command=self.start_recording)
+        self.RecordDataButton = ttk.Button(top, command=lambda:self.start_recording(top))
         self.RecordDataButton.place(relx=0.335, rely=0.8, height=26, width=223)
         self.RecordDataButton.configure(takefocus="")
         self.RecordDataButton.configure(text='''Start Recording''')
@@ -406,7 +410,7 @@ class Plotter_GUI:
             self.RecordDataButton.update()
                 
 
-    def start_recording(self):
+    def start_recording(self, plot_root):
         if (plotter_gui_support.recording_stat.get() == False):
             plotter_gui_support.recording_stat.set(True)
             if (plotter_gui_support.port_open.get()):
@@ -420,10 +424,13 @@ class Plotter_GUI:
                     (cycle_time_minutes * 60)
                 print("Hours:", cycle_time_hours, ",minutes:",
                     cycle_time_minutes, ",seconds:", cycle_time_seconds)
-                plotter_gui_support.freq_plot = animate_plot.AnimatedPlot( plotter_gui_support.out_file_path.get(),
-                    plotter_gui_support.port, sample_interval, no_samples, cycle_time_seconds)
-                plotter_gui_support.freq_plot = None
-                print("After the freq plot", plotter_gui_support.freq_plot)
+                # plotter_gui_support.freq_plot = animate_plot.AnimatedPlot( plotter_gui_support.out_file_path.get(),
+                #     plotter_gui_support.port, sample_interval, no_samples, cycle_time_seconds)
+                # plotter_gui_support.freq_plot = None
+                # print("After the freq plot", plotter_gui_support.freq_plot)
+                tk_plot.create_FreqPlot(plot_root, path=plotter_gui_support.out_file_path.get(),
+                    port=plotter_gui_support.port, s_interval=sample_interval,
+                    samples=no_samples, cycle_time=cycle_time_seconds)
 
                 plotter_gui_support.recording_stat.set(False)
                 self.update_UI()

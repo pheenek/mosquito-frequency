@@ -17,7 +17,7 @@ class AnimatedPlot:
         '''This class creates the matplotlib animated bar graph plot'''
         self.file_path = path
         self.ser_port = port
-        self.sample_interval = int(s_interval/0.5)
+        self.sample_interval = int(s_interval/0.2)
         self.no_samples = samples
         self.cycle_time = cycle
         # self.cycle_timer = Timer(30.0, self.take_readings)
@@ -35,7 +35,7 @@ class AnimatedPlot:
         for i in range(93, 2000, 31):
             self.xs.append(i)
 
-        self.ani = animation.FuncAnimation(self.fig, self.animate, interval=500)
+        self.ani = animation.FuncAnimation(self.fig, self.animate, repeat_delay=10)
         plt.show()
 
     def __del__(self):
@@ -120,6 +120,9 @@ class AnimatedPlot:
             file_stream.write(delimiter.join(data_str) + "\n")
 
     def animate(self, i):
+        currentDT = datetime.now()
+        time_str = currentDT.strftime("%H:%M:%S:%f")
+        print(time_str)
         graph_data = self.pack_data_to_dict()
         print(graph_data)
 
@@ -136,6 +139,7 @@ class AnimatedPlot:
 
             if (self.record == True):
                 if (self.dim == self.sample_interval):
+                # if (self.dim == 10):
                     self.dim = 0
                     print("Saving...")
                     self.write_to_csv(ys)
@@ -143,7 +147,8 @@ class AnimatedPlot:
                     if (self.recorded_samples == self.no_samples):
                         self.recorded_samples = 0
                         self.record = False
-                        self.cycle_timer = Timer(float(self.cycle_time), self.take_readings)
+                        # self.cycle_timer = Timer(float(self.cycle_time), self.take_readings)
+                        self.cycle_timer = Timer(5.0, self.take_readings)
                         self.cycle_timer.start()
 
                 self.dim+=1

@@ -428,16 +428,24 @@ class Plotter_GUI:
                 #     plotter_gui_support.port, sample_interval, no_samples, cycle_time_seconds)
                 # plotter_gui_support.freq_plot = None
                 # print("After the freq plot", plotter_gui_support.freq_plot)
-                tk_plot.create_FreqPlot(plot_root, path=plotter_gui_support.out_file_path.get(),
+                (self.plot_w, self.plot_top) = tk_plot.create_FreqPlot(plot_root, path=plotter_gui_support.out_file_path.get(),
                     port=plotter_gui_support.port, s_interval=sample_interval,
                     samples=no_samples, cycle_time=cycle_time_seconds)
 
-                plotter_gui_support.recording_stat.set(False)
-                self.update_UI()
-                self.update_port_status()
+                self.plot_w.protocol("WM_DELETE_WINDOW", self.close_plot)
+
             else:
                 messagebox.showerror("Port Not Connected!",
                                     "Choose a port and Click 'Connect' to continue")
+
+
+    def close_plot(self):
+        print("=========DESTRUCTION!!==========")
+        self.plot_w.destroy()
+        self.plotter_gui_support.recording_stat.set(False)
+        self.update_UI()
+        self.update_port_status()
+
 
     def browse_path(self, root):
         ftypes = [('CSV files', '*.csv'), ('All files', '*')]

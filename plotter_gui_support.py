@@ -32,10 +32,10 @@ def set_Tk_var():
     minutes_spinbox.set("30")
 
     global port_open
-    port_open = tk.BooleanVar(False)
+    port_open = tk.BooleanVar(value=False)
 
     global recording_stat
-    recording_stat = tk.BooleanVar(False)
+    recording_stat = tk.BooleanVar(value=False)
 
     global port
     port = None

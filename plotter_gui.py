@@ -5,6 +5,14 @@
 #  in conjunction with Tcl version 8.6
 #    Jul 31, 2020 10:55:31 AM EAT  platform: Linux
 
+"""This module draws the primary frequency data capture GUI on-screen
+
+The module sets up the GUI window and handles configurations for:
+the serial port to read data from, the sampling interval, the
+number of samples per recording, the cycle time and the output file for
+recordings.
+"""
+
 import sys, os, subprocess
 import tkinter as tk
 from tkinter import messagebox, filedialog
@@ -58,11 +66,12 @@ def create_Plotter_GUI(rt, *args, **kwargs):
 
 
 def destroy_Plotter_GUI():
+    '''Performs clean-up of the plotter GUI'''
     global w
     w.destroy()
     w = None
 
-
+# Sampling interval value-list
 interval_vals = []
 for i in np.arange(0.5, 10.5, 0.5):
     interval_vals.append(i)
@@ -485,6 +494,7 @@ class Plotter_GUI:
 
 
     def close_plot(self):
+        '''Closes the plotter GUI window'''
         print("=========DESTRUCTION!!==========")
         self.plot_w.destroy()
         self.plotter_gui_support.recording_stat.set(False)

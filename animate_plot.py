@@ -1,4 +1,9 @@
 
+"""This module provides supporting functions for animating the real-time graph
+
+The real-time graph is frequently updated with the latest data in real-time.
+"""
+
 import serial
 import matplotlib
 matplotlib.use('TkAgg')

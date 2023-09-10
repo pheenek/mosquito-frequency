@@ -5,6 +5,8 @@
 #  in conjunction with Tcl version 8.6
 #    Jul 29, 2020 06:53:00 AM EAT  platform: Linux
 
+"""This module provides supporting functions for setting up the primary plotter GUI window"""
+
 import sys
 import os
 import tkinter as tk

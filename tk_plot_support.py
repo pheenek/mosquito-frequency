@@ -5,12 +5,15 @@
 #  in conjunction with Tcl version 8.6
 #    Aug 11, 2020 01:35:00 PM EAT  platform: Linux
 
+"""This module provides supperting functions for drawing the real-time graph plot GUI window"""
+
 import sys
 
 import tkinter as tk
 import tkinter.ttk as ttk
 
 def init(top, gui, *args, **kwargs):
+    '''Support function for initializing the plotter GUI window'''
     global w, top_level, root
     w = gui
     top_level = top
@@ -25,6 +28,7 @@ def init(top, gui, *args, **kwargs):
     cycle_time = int(kwargs.get('cycle_time'))
 
 def destroy_window():
+    '''Support function that destroys the plotter GUI window'''
     # Function which closes the window.
     global top_level
     top_level.destroy()

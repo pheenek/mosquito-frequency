@@ -5,6 +5,12 @@
 #  in conjunction with Tcl version 8.6
 #    Aug 11, 2020 01:35:24 PM EAT  platform: Linux
 
+"""This module draws the real-time graph plot GUI window on screen
+
+The plot includes a real-time animated plot of the frequency magnitude
+and the current temperature value
+"""
+
 import sys
 
 import tkinter as tk
@@ -92,6 +98,7 @@ class FreqPlot:
         toolbar.update()
         self.canvas.get_tk_widget().place(relx=0.01, rely=0.067, relheight=0.85, relwidth=0.95)
 
+        # Frame for placing temperature display widgets
         self.TempFrame = ttk.Frame(top)
         self.TempFrame.place(relx=0.683, rely=0.022, relheight=0.278
                 , relwidth=0.208)
@@ -99,6 +106,7 @@ class FreqPlot:
         self.TempFrame.configure(borderwidth="2")
         self.TempFrame.configure(relief="groove")
 
+        # Label for the temperature value widget
         self.TempLabel = ttk.Label(self.TempFrame)
         self.TempLabel.place(relx=0.054, rely=0.08, height=17, width=97)
         self.TempLabel.configure(background="#d9d9d9")
@@ -109,6 +117,7 @@ class FreqPlot:
         self.TempLabel.configure(justify='left')
         self.TempLabel.configure(text='''Temperature:''')
 
+        # Label containing the actual temperature value
         self.TempValLabel = ttk.Label(self.TempFrame)
         self.TempValLabel.place(relx=0.054, rely=0.24, height=77, width=127)
         self.TempValLabel.configure(background="#d9d9d9")
@@ -122,10 +131,12 @@ class FreqPlot:
         # self.ax1.clear()
         # self.ax1.bar(self.xs, self.ys, width=20)
 
+        # Animation to periodically update the temperature data
         self.ani = animation.FuncAnimation(self.fig, self.animate, repeat_delay=10)
 
 
     def take_readings(self):
+        '''Enables writing the data values to file'''
         # unblocking function
         self.cycle_timer.cancel()
         print("============= UNBLOCK RECORDING ==============")
@@ -133,6 +144,8 @@ class FreqPlot:
 
 
     def read_serial_data(self):
+        '''Reads raw data values from the serial port as a string of characters
+            terminated by a new-line (\n) character'''
         start = False
         ser_str = ""
         while True:
@@ -159,6 +172,9 @@ class FreqPlot:
 
 
     def pack_data_to_dict(self):
+        '''Packs the raw data readings into a dictionary with keys (0-64)
+            The keys represent the 64 distinct frequency blocks, and a single
+            temperature reading'''
         frequencies = {}
         num = ""
         str_data = ""
@@ -190,6 +206,7 @@ class FreqPlot:
 
 
     def write_to_csv(self, data):
+        '''Writes the data readings to the output CSV file'''
         delimiter = ","
         currentDT = datetime.now()
         date_str = currentDT.strftime("%d/%m/%Y")
@@ -200,6 +217,7 @@ class FreqPlot:
             file_stream.write(delimiter.join(data_str) + "\n")
 
     def animate(self, i):
+        '''Called periodically to update the plot as well as the temperature value'''
         graph_data = self.pack_data_to_dict()
         print(graph_data)
 

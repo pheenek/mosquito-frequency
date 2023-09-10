@@ -1,2 +1,5 @@
 Frequency_samples/
 __pycache__/
+*.bak1
+*.bak2
+*.bak3

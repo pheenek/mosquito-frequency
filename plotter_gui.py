@@ -18,6 +18,8 @@ import ntpath
 import tk_plot
 
 def confirm_quit():
+    '''Executes clean-up tasks before closing the program
+        Also issues a confirm-close dialog'''
     if messagebox.askokcancel("Quit?", "Are you sure you want to quit?"):
         if (plotter_gui_support.port != None):
             plotter_gui_support.port.close()
@@ -28,7 +30,11 @@ def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
+
+    # Define our confirm_quit() function as the protocol handler for the
+    # WM_DELETE_WINDOW window manager protocol
     root.protocol("WM_DELETE_WINDOW", confirm_quit)
+
     plotter_gui_support.set_Tk_var()
     top = Plotter_GUI(root)
     plotter_gui_support.init(root, top)
@@ -89,6 +95,7 @@ class Plotter_GUI:
         top.configure(highlightcolor="black")
         top.configure(background='#d9d9d9')
 
+        # Frame for defining port-configuration widgets
         self.PortFrame = ttk.Frame(top)
         self.PortFrame.place(relx=0.028, rely=0.112,
                              relheight=0.478, relwidth=0.279)
@@ -96,6 +103,7 @@ class Plotter_GUI:
         self.PortFrame.configure(borderwidth="2")
         self.PortFrame.configure(relief="groove")
 
+        # Label for serial port selection combobox
         self.PortLabel = ttk.Label(self.PortFrame)
         self.PortLabel.place(relx=0.101, rely=0.182, height=23, width=65)
         self.PortLabel.configure(background="#d9d9d9")
@@ -106,6 +114,8 @@ class Plotter_GUI:
         self.PortLabel.configure(justify='left')
         self.PortLabel.configure(text='''Port''')
 
+        # Combobox for serial port selection
+        # Serial port options are populated by calling get_ports()
         port_list = self.get_ports()
         self.PortComboBox = ttk.Combobox(
             self.PortFrame, values=port_list)
@@ -118,6 +128,8 @@ class Plotter_GUI:
             textvariable=plotter_gui_support.port_combobox)
         self.PortComboBox.configure(takefocus="")
 
+        # Button for refreshing available serial ports
+        # Calls refresh_ports() to refresh the serial port selection combobox
         self.RefreshPortButton = ttk.Button(
             self.PortFrame, command=self.refresh_ports)
         self.RefreshPortButton.place(
@@ -125,6 +137,8 @@ class Plotter_GUI:
         self.RefreshPortButton.configure(takefocus="")
         self.RefreshPortButton.configure(text='''Refresh''')
 
+        # Button for initiating serial port connection
+        # Calls connect_port() to connect to the currently selected serial port option
         self.ConnectPortButton = ttk.Button(
             self.PortFrame, command=self.connect_port)
         self.ConnectPortButton.place(
@@ -132,12 +146,14 @@ class Plotter_GUI:
         self.ConnectPortButton.configure(takefocus="")
         self.ConnectPortButton.configure(text='''Connect''')
 
+        # Frame for defining program settings widgets
         self.SettingsLabelFrame = ttk.Labelframe(top)
         self.SettingsLabelFrame.place(
             relx=0.324, rely=0.09, relheight=0.5, relwidth=0.635)
         self.SettingsLabelFrame.configure(relief='')
         self.SettingsLabelFrame.configure(text='''Settings''')
 
+        # Label for the sampling interval combobox
         self.IntervalLabel = ttk.Label(self.SettingsLabelFrame)
         self.IntervalLabel.place(
             relx=0.044, rely=0.268, height=34, width=139, bordermode='ignore')
@@ -149,6 +165,7 @@ class Plotter_GUI:
         self.IntervalLabel.configure(justify='left')
         self.IntervalLabel.configure(text='''Sampling Interval''')
 
+        # Label for the samples spinbox
         self.SamplesLabel = ttk.Label(self.SettingsLabelFrame)
         self.SamplesLabel.place(relx=0.044, rely=0.487,
                                 height=34, width=172, bordermode='ignore')
@@ -160,6 +177,7 @@ class Plotter_GUI:
         self.SamplesLabel.configure(justify='left')
         self.SamplesLabel.configure(text='''Samples per Recording''')
 
+        # Label for the cycles spinbox
         self.CycleLabel = ttk.Label(self.SettingsLabelFrame)
         self.CycleLabel.place(relx=0.044, rely=0.711,
                               height=35, width=117, bordermode='ignore')
@@ -171,6 +189,7 @@ class Plotter_GUI:
         self.CycleLabel.configure(justify='left')
         self.CycleLabel.configure(text='''Cycle Time''')
 
+        # Combobox for configuring the sampling interval
         self.IntervalComboBox = ttk.Combobox(
             self.SettingsLabelFrame, values=interval_vals)
         self.IntervalComboBox.place(
@@ -179,6 +198,7 @@ class Plotter_GUI:
             textvariable=plotter_gui_support.interval_combobox)
         self.IntervalComboBox.configure(takefocus="")
 
+        # Label for the sampling inteval units (seconds)
         self.IntervalUnitsLabel = ttk.Label(self.SettingsLabelFrame)
         self.IntervalUnitsLabel.place(
             relx=0.867, rely=0.263, height=24, width=37, bordermode='ignore')
@@ -190,6 +210,7 @@ class Plotter_GUI:
         self.IntervalUnitsLabel.configure(justify='left')
         self.IntervalUnitsLabel.configure(text='''s''')
 
+        # Spinbox for configuring the number of samples per recording
         self.SamplesSpinBox = tk.Spinbox(
             self.SettingsLabelFrame, from_=1.0, to=1000.0)
         self.SamplesSpinBox.place(
@@ -203,6 +224,7 @@ class Plotter_GUI:
         self.SamplesSpinBox.configure(
             textvariable=plotter_gui_support.samples_spinbox)
 
+        # Label for the samples per recording units (samples)
         self.SamplesUnitsLabel = ttk.Label(self.SettingsLabelFrame)
         self.SamplesUnitsLabel.place(
             relx=0.85, rely=0.5, height=23, width=56, bordermode='ignore')
@@ -214,6 +236,7 @@ class Plotter_GUI:
         self.SamplesUnitsLabel.configure(justify='left')
         self.SamplesUnitsLabel.configure(text='''samples''')
 
+        # Spinbox for configuring the time per cycle (hours)
         self.NoHoursCycleSpinBox = tk.Spinbox(
             self.SettingsLabelFrame, from_=0.0, to=30.0)
         self.NoHoursCycleSpinBox.place(
@@ -227,6 +250,7 @@ class Plotter_GUI:
         self.NoHoursCycleSpinBox.configure(
             textvariable=plotter_gui_support.hours_spinbox)
 
+        # Label for the cycle time units (hours)
         self.CycleHoursLabel = ttk.Label(self.SettingsLabelFrame)
         self.CycleHoursLabel.place(
             relx=0.578, rely=0.702, height=34, width=46, bordermode='ignore')
@@ -238,6 +262,7 @@ class Plotter_GUI:
         self.CycleHoursLabel.configure(justify='left')
         self.CycleHoursLabel.configure(text='''Hours''')
 
+        # Spinbox for configuring the time per cycle (minutes)
         self.NoMinutesCycleSpinBox = tk.Spinbox(
             self.SettingsLabelFrame, from_=0.0, to=59.0)
         self.NoMinutesCycleSpinBox.place(
@@ -251,6 +276,7 @@ class Plotter_GUI:
         self.NoMinutesCycleSpinBox.configure(
             textvariable=plotter_gui_support.minutes_spinbox)
 
+        # Label for the cycle time units (minutes)
         self.CycleMinutesLabel = ttk.Label(self.SettingsLabelFrame)
         self.CycleMinutesLabel.place(
             relx=0.8, rely=0.702, height=34, width=55, bordermode='ignore')
@@ -262,12 +288,14 @@ class Plotter_GUI:
         self.CycleMinutesLabel.configure(justify='left')
         self.CycleMinutesLabel.configure(text='''Minutes''')
 
+        # Frame for output file configurations
         self.OutputLabelFrame = ttk.Labelframe(top)
         self.OutputLabelFrame.place(
             relx=0.028, rely=0.601, relheight=0.167, relwidth=0.931)
         self.OutputLabelFrame.configure(relief='')
         self.OutputLabelFrame.configure(text='''Output''')
 
+        # Label for the output file Entry widget
         self.OutputFileLabel = ttk.Label(self.OutputLabelFrame)
         self.OutputFileLabel.place(
             relx=0.044, rely=0.308, height=30, width=99, bordermode='ignore')
@@ -279,6 +307,7 @@ class Plotter_GUI:
         self.OutputFileLabel.configure(justify='left')
         self.OutputFileLabel.configure(text='''Output File''')
 
+        # Entry widget for inputting the output file name
         self.OutFileText = ttk.Entry(self.OutputLabelFrame)
         self.OutFileText.place(
             relx=0.165, rely=0.35, relheight=0.338, relwidth=0.55, bordermode='ignore')
@@ -287,6 +316,7 @@ class Plotter_GUI:
         self.OutFileText.configure(
             textvariable=plotter_gui_support.out_file_name)
 
+        # Button for opening the OS file selector window
         self.BrowseFileButton = ttk.Button(
             self.OutputLabelFrame, command=lambda: self.browse_path(top))
         self.BrowseFileButton.place(
@@ -294,17 +324,21 @@ class Plotter_GUI:
         self.BrowseFileButton.configure(takefocus="")
         self.BrowseFileButton.configure(text='''Browse''')
 
+        # Button for opening the file containing recorded data using a system program
+        # that can read csv files
         self.OpenFileButton = ttk.Button(self.OutputLabelFrame, command=self.open_file)
         self.OpenFileButton.place(
             relx=0.860, rely=0.35, height=26, width=83, bordermode='ignore')
         self.OpenFileButton.configure(takefocus="")
         self.OpenFileButton.configure(text='''Open''')
 
+        # Button for beginning data-recording
         self.RecordDataButton = ttk.Button(top, command=lambda:self.start_recording(top))
         self.RecordDataButton.place(relx=0.335, rely=0.8, height=26, width=223)
         self.RecordDataButton.configure(takefocus="")
         self.RecordDataButton.configure(text='''Start Recording''')
 
+        # Label for showing current program status (Disconnected, Connected)
         self.StatusLabel = ttk.Label(top)
         self.StatusLabel.place(relx=0.014, rely=0.899, height=37, width=687)
         self.StatusLabel.configure(background="#FF0000")
@@ -319,13 +353,19 @@ class Plotter_GUI:
 
 
     def get_ports(self):
-        return serial_tools.comports()
+        '''Queries the OS for a list of available serial comports'''
+        available_ports = serial_tools.comports()
+        if (len(available_ports) == 0):
+            available_ports = ["."]
+        return available_ports
 
     def refresh_ports(self):
+        '''Updates the serial port selection combo box by calling get_ports()'''
         print("Refreshing ports...")
         self.PortComboBox['values'] = self.get_ports()
 
     def update_port_status(self):
+        '''Updates the state of widgets that depend on the port-connection status'''
         plotter_gui_support.port_open.set(plotter_gui_support.port.isOpen())
         print("Port status: ", str(plotter_gui_support.port.isOpen()))
 
@@ -343,6 +383,7 @@ class Plotter_GUI:
             self.PortComboBox.configure(state='normal')
 
     def connect_port(self):
+        '''Initiates connection to a serial port, baudrate=57600'''
         if (self.PortComboBox.get() != ""):
             print("Port open stat:", plotter_gui_support.port_open.get())
             if (plotter_gui_support.port_open.get() == False):
@@ -364,6 +405,8 @@ class Plotter_GUI:
             messagebox.showerror("Error", "Select a serial port to continue")
 
     def update_UI(self):
+        '''Updates the widgets that depend on the recording status
+            (Disabled when recording is ongoing and no changes can be made to parameters)'''
         if (plotter_gui_support.recording_stat.get()):
             self.StatusLabel.configure(text='''Online''')
             self.StatusLabel.update()
@@ -411,6 +454,8 @@ class Plotter_GUI:
                 
 
     def start_recording(self, plot_root):
+        '''Initiates data-recording
+            Creates animate_plot.AnimatedPlot to animate the graph plot'''
         if (plotter_gui_support.recording_stat.get() == False):
             plotter_gui_support.recording_stat.set(True)
             if (plotter_gui_support.port_open.get()):
@@ -448,6 +493,7 @@ class Plotter_GUI:
 
 
     def browse_path(self, root):
+        '''Opens a file chooser dialog for selecting the output file for data-recordings'''
         ftypes = [('CSV files', '*.csv'), ('All files', '*')]
         dlg = filedialog.Open(
             root, filetypes=ftypes, initialdir=plotter_gui_support.current_dir, initialfile=plotter_gui_support.out_file_name.get())
@@ -462,11 +508,18 @@ class Plotter_GUI:
             print("File name:", tail)
 
     def open_file(self):
+        '''Opens the output file using a system program that can open/view CSV files'''
         if (sys.platform == "win32"):
             os.startfile(plotter_gui_support.out_file_path)
         else:
             opener ="open" if sys.platform == "darwin" else "xdg-open"
             subprocess.call([opener, plotter_gui_support.out_file_path.get()])
 
+
+'''
+This is the entry-point for the Tkinter GUI program.
+When this module is run as the main routine, 
+the function vp_start_gui() is called to start the Tkinter GUI
+'''
 if __name__ == '__main__':
     vp_start_gui()

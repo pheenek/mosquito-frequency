@@ -1,5 +1,7 @@
 
 import serial
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
@@ -20,6 +22,8 @@ class AnimatedPlot:
         self.sample_interval = int(s_interval/0.2)
         self.no_samples = samples
         self.cycle_time = cycle
+
+        # Timer for the interval with which to write data to file
         # self.cycle_timer = Timer(30.0, self.take_readings)
         self.cycle_timer = Timer(1.0, self.take_readings)
         self.record = True
@@ -39,20 +43,32 @@ class AnimatedPlot:
         plt.show()
 
     def __del__(self):
+        '''Cleans up the matplotlib plot'''
         print("Invoking finalizer")
         plt.close(self.fig)
 
     def take_readings(self):
+        ''''''
         # unblocking function
         self.cycle_timer.cancel()
         print("============= UNBLOCK RECORDING ==============")
         self.record = True
 
     def on_close(self, event):
+        '''Executed when exiting the program'''
         print("Closing plot")
         self.__del__()
 
     def read_serial_data(self):
+        '''Reads a single line of raw data from the serial port
+
+        The data read consists of 64 comma-separated values representing 64
+        frequency-blocks. The data represents the magnitude (dB) of the detected
+        sound frequency for each block
+        
+        Returns:
+            str: a string of raw-data characters terminated by a '\n' character
+        '''
         start = False
         ser_str = ""
         while True:
@@ -79,6 +95,14 @@ class AnimatedPlot:
 
 
     def pack_data_to_dict(self):
+        '''Stores the raw-data into a dictionary
+
+        The raw data is stored into a dictionary with keys (0-63) corresponding to 64
+        frequency blocks
+        
+        Returns:
+            dict: A dictionary containing the data
+        '''
         frequencies = {}
         num = ""
         str_data = ""
@@ -110,6 +134,7 @@ class AnimatedPlot:
 
 
     def write_to_csv(self, data):
+        '''Writes the data into the output file'''
         delimiter = ","
         currentDT = datetime.now()
         date_str = currentDT.strftime("%d/%m/%Y")
@@ -120,6 +145,7 @@ class AnimatedPlot:
             file_stream.write(delimiter.join(data_str) + "\n")
 
     def animate(self, i):
+        '''Repeatedly called by animation.FuncAnimation to display the animated plot'''
         currentDT = datetime.now()
         time_str = currentDT.strftime("%H:%M:%S:%f")
         print(time_str)
@@ -127,9 +153,11 @@ class AnimatedPlot:
         print(graph_data)
 
         if (graph_data != None):
+            # Remove the low-frequency noise
             del graph_data[0]
-            del graph_data[1]            
+            del graph_data[1]
 
+            # Reload the plot with the newly-acquired data
             ys = list(graph_data.values())
             # print("xs:", len(xs), "ys:", len(ys))
 

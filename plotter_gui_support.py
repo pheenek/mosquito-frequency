@@ -12,36 +12,47 @@ import tkinter.ttk as ttk
 from datetime import datetime
 
 def set_Tk_var():
+    '''Support function for initializing tk variables to be used by the UI'''
+    # Port combobox selection store variable
     global port_combobox
     port_combobox = tk.StringVar()
 
+    # Interval combobox selection store variable
     global interval_combobox
     interval_combobox = tk.StringVar()
     interval_combobox.set("1")
 
+    # Num samples combobox store variable
     global samples_spinbox
     samples_spinbox = tk.StringVar()
     samples_spinbox.set("10")
 
+    # Cycle hours store variable
     global hours_spinbox
     hours_spinbox = tk.StringVar()
     hours_spinbox.set("0")
 
+    # Cycle minutes store variable
     global minutes_spinbox
     minutes_spinbox = tk.StringVar()
     minutes_spinbox.set("30")
 
+    # Port open status store variable
     global port_open
     port_open = tk.BooleanVar(value=False)
 
+    # Data recording status store variable
     global recording_stat
     recording_stat = tk.BooleanVar(value=False)
 
+    # Current port store variable
     global port
     port = None
 
+    # Plot store variable
     global freq_plot
 
+    # Output folder directory store variable
     global current_dir
     current_dir = os.getcwd()
     data_dir = 'Frequency_samples'
@@ -53,6 +64,7 @@ def set_Tk_var():
         if (os.path.isdir(data_dir_path)):
             current_dir = data_dir_path
 
+    # Output file name store variable
     global out_file_name
     out_file_name = tk.StringVar()
     currentDT = datetime.now()
@@ -61,7 +73,8 @@ def set_Tk_var():
     f_name = "sample_" + date_str + "-" + time_str + ".csv"
     f_path = os.path.join(current_dir, f_name)
     out_file_name.set(f_name)
-    
+
+    # Plot column labels
     col_labels = []
     for i in range(93, 2000, 31):
         col_labels.append(str(i) + "Hz")
@@ -71,18 +84,21 @@ def set_Tk_var():
             out_file.write(col + ",")
         out_file.write("\n")
 
+    # Output file path store variable
     global out_file_path
     out_file_path = tk.StringVar()
     out_file_path.set(f_path)
 
 
 def init(top, gui, *args, **kwargs):
+    '''Support function for initializing the UI'''
     global w, top_level, root
     w = gui
     top_level = top
     root = top
 
 def destroy_window():
+    '''Support function for exiting the UI'''
     # Function which closes the window.
     global top_level
     top_level.destroy()
